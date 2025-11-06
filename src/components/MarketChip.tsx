@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { MarketChip as MarketChipType } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface MarketChipProps {
   data: MarketChipType;
@@ -8,16 +9,19 @@ interface MarketChipProps {
 
 export const MarketChip = ({ data }: MarketChipProps) => {
   const isPositive = data.change >= 0;
+  const navigate = useNavigate();
 
   return (
     <div
+      onClick={() => navigate(`/commodity/${data.name}`)}
       className={cn(
-        "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300",
+        "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 cursor-pointer",
         isPositive 
           ? "bg-gain-light border-gain/20 hover:border-gain/40" 
           : "bg-loss-light border-loss/20 hover:border-loss/40"
       )}
     >
+      <span className="text-2xl">{data.emoji}</span>
       <div className="flex flex-col flex-1 min-w-0">
         <span className="text-sm font-medium text-foreground truncate">
           {data.name}

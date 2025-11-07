@@ -25,6 +25,23 @@ export interface FPOOffer {
   minOrderQty: number;
   availableFrom: string;
   verified: boolean;
+  distance?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface Quote {
+  quoteNo: string;
+  date: string;
+  time: string;
+  cropName: string;
+  fpoName: string;
+  quantity: number;
+  unit: string;
+  price: number;
+  offerPrice: number;
+  location: string;
+  status: "Open" | "Cancelled" | "Rejected" | "Closed" | "Ordered";
 }
 
 export const marketChips: MarketChip[] = [
@@ -61,6 +78,9 @@ export const fpoOffers: FPOOffer[] = [
     minOrderQty: 50,
     availableFrom: "2025-11-10",
     verified: true,
+    distance: "12 km",
+    lat: 22.7196,
+    lng: 88.4863,
   },
   {
     id: "2",
@@ -80,6 +100,9 @@ export const fpoOffers: FPOOffer[] = [
     minOrderQty: 100,
     availableFrom: "2025-11-08",
     verified: true,
+    distance: "25 km",
+    lat: 18.5204,
+    lng: 73.8567,
   },
   {
     id: "3",
@@ -327,5 +350,13 @@ export const fpoOffers: FPOOffer[] = [
     minOrderQty: 250,
     availableFrom: "2025-11-12",
     verified: true,
+    distance: "42 km",
+    lat: 20.2961,
+    lng: 85.8245,
   },
-];
+].map(offer => ({
+  ...offer,
+  distance: offer.distance || `${Math.floor(Math.random() * 50) + 5} km`,
+  lat: offer.lat || 0,
+  lng: offer.lng || 0,
+}));

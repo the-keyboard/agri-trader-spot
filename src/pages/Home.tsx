@@ -1,29 +1,21 @@
-import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { NavigationMenu } from "@/components/NavigationMenu";
+import { QuoteHistory } from "@/components/QuoteHistory";
 import { MarketChip } from "@/components/MarketChip";
 import { FPOCard } from "@/components/FPOCard";
 import { PriceTicker } from "@/components/PriceTicker";
+import { Button } from "@/components/ui/button";
 import { marketChips, fpoOffers } from "@/lib/mockData";
-import { useNavigate } from "react-router-dom";
 
 const Home = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            <NavigationMenu />
             <h1 className="text-2xl font-bold text-primary">VBOX Trading</h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/search")}
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Advanced Search
-            </Button>
+            <QuoteHistory />
           </div>
         </div>
       </header>

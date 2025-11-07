@@ -1,5 +1,4 @@
 import { NavigationMenu } from "@/components/NavigationMenu";
-import { QuoteHistory } from "@/components/QuoteHistory";
 import { MarketChip } from "@/components/MarketChip";
 import { FPOCard } from "@/components/FPOCard";
 import { PriceTicker } from "@/components/PriceTicker";
@@ -12,10 +11,11 @@ const Home = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <NavigationMenu />
+          <div className="flex items-center justify-center">
+            <div className="absolute left-4">
+              <NavigationMenu />
+            </div>
             <h1 className="text-2xl font-bold text-primary">VBOX Trading</h1>
-            <QuoteHistory />
           </div>
         </div>
       </header>

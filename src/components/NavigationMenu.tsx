@@ -8,6 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { QuoteHistory } from "./QuoteHistory";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
@@ -50,6 +51,9 @@ export const NavigationMenu = () => {
               </Button>
             );
           })}
+          <div className="pt-4 border-t border-border">
+            <QuoteHistory />
+          </div>
         </nav>
       </SheetContent>
     </Sheet>

@@ -30,6 +30,14 @@ export interface FPOOffer {
   lng?: number;
 }
 
+export interface Message {
+  id: string;
+  sender: "buyer" | "fpo";
+  senderName: string;
+  message: string;
+  timestamp: string;
+}
+
 export interface Quote {
   quoteNo: string;
   date: string;
@@ -42,6 +50,7 @@ export interface Quote {
   offerPrice: number;
   location: string;
   status: "Open" | "Cancelled" | "Rejected" | "Closed" | "Ordered";
+  messages?: Message[];
 }
 
 export const marketChips: MarketChip[] = [

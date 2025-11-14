@@ -25,6 +25,7 @@ const App = () => (
           <Route path="/commodity/:commodity" element={<CommodityDetail />} />
           <Route path="/quote-tracking" element={<QuoteTracking />} />
           <Route path="/quote-history" element={<QuoteHistory />} />
+          <Route path="/quote/:quoteNo" element={<QuoteDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -48,6 +48,27 @@ const mockQuoteHistory: Quote[] = [
         message: "Absolutely! We will send you tracking details via SMS and email once the shipment is dispatched.",
         timestamp: "2025-10-15, 12:15 PM",
       },
+      {
+        id: "5",
+        sender: "fpo",
+        senderName: "Sunrise Agro Collective",
+        message: "Great news! Your order has been accepted and is being prepared for dispatch. The total amount is ₹1150.00. Please proceed with the payment to confirm.",
+        timestamp: "2025-10-15, 3:00 PM",
+      },
+      {
+        id: "6",
+        sender: "buyer",
+        senderName: "You",
+        message: "Payment confirmed! Transaction ID: TXN1234567890. Looking forward to receiving the order.",
+        timestamp: "2025-10-15, 3:30 PM",
+      },
+      {
+        id: "7",
+        sender: "fpo",
+        senderName: "Sunrise Agro Collective",
+        message: "Thank you for the payment! Your order is now confirmed and will be dispatched tomorrow morning. You'll receive tracking details by evening.",
+        timestamp: "2025-10-15, 4:00 PM",
+      },
     ],
   },
   {

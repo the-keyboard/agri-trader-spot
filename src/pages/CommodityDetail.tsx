@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { useTicker } from "@/hooks/useTicker";
 
 const CommodityDetail = () => {
   const { commodity } = useParams();
@@ -27,10 +28,14 @@ const CommodityDetail = () => {
   const [selectedOffer, setSelectedOffer] = useState<typeof fpoOffers[0] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quoteNumbers, setQuoteNumbers] = useState<Record<string, string>>({});
+  const { data: tickerData } = useTicker(50);
 
-  const commodityData = marketChips.find(
-    (chip) => chip.name.toLowerCase() === commodity?.toLowerCase()
+
+  const commodityData = tickerData.find(
+    (chip) => chip.commodity.toLowerCase() === commodity?.toLowerCase()
   );
+
+  console.log("Commodity Data:", commodityData);
 
   const allFilteredFPOs = fpoOffers.filter(
     (offer) => offer.commodity.toLowerCase() === commodity?.toLowerCase()
@@ -89,7 +94,7 @@ const CommodityDetail = () => {
               <span className="text-3xl">{commodityData.emoji}</span>
               <div>
                 <h1 className="text-2xl font-bold text-primary">
-                  {commodityData.name}
+                  {commodityData.commodity}
                 </h1>
                 <p className="text-sm text-muted-foreground">
                   {filteredFPOs.length} FPO{filteredFPOs.length !== 1 ? "s" : ""} available

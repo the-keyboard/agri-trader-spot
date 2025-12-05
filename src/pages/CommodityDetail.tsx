@@ -31,7 +31,7 @@ const CommodityDetail = () => {
   const [selectedOffer, setSelectedOffer] = useState<FPOOffer | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quoteNumbers, setQuoteNumbers] = useState<Record<string, string>>({});
-  const { data: tickerData } = useTicker(100);
+  const { data: tickerData = [], isLoading: tickerLoading } = useTicker(100);
 
   // Parse slug to get commodity and variety
   // Find matching ticker item by comparing slugified versions
@@ -89,6 +89,17 @@ const CommodityDetail = () => {
     state: offer.seller_details.state,
     distance: "N/A",
   });
+
+  if (tickerLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Skeleton className="h-8 w-48 mx-auto mb-4" />
+          <Skeleton className="h-4 w-32 mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   if (!commodityData && tickerData.length > 0) {
     return (

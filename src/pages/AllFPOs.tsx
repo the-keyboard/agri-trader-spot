@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, MapPin, ArrowLeft, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronLeft, ChevronRight, MapPin, ArrowLeft, FileText, Search, ArrowUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
 import { FPOOffer } from "@/lib/mockData";
+
+type SortOption = "price-asc" | "price-desc" | "commodity" | "location" | "fpo-name";
 
 const AllFPOs = () => {
   const navigate = useNavigate();
@@ -17,14 +21,62 @@ const AllFPOs = () => {
   const itemsPerPage = 12;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<FPOOffer | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("price-asc");
   
   const { data: fpoOffers = [], isLoading } = useQuery({
     queryKey: ['all-fpo-offers'],
     queryFn: fetchAllFPOOffers,
   });
 
-  const totalPages = Math.ceil(fpoOffers.length / itemsPerPage);
-  const visibleOffers = fpoOffers.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+  const filteredAndSortedOffers = useMemo(() => {
+    let filtered = fpoOffers;
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(offer =>
+        offer.fpoName.toLowerCase().includes(query) ||
+        offer.commodity.toLowerCase().includes(query) ||
+        offer.variety.toLowerCase().includes(query) ||
+        offer.address.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "price-asc":
+          return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
+        case "commodity":
+          return a.commodity.localeCompare(b.commodity);
+        case "location":
+          return a.address.localeCompare(b.address);
+        case "fpo-name":
+          return a.fpoName.localeCompare(b.fpoName);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [fpoOffers, searchQuery, sortBy]);
+
+  const totalPages = Math.ceil(filteredAndSortedOffers.length / itemsPerPage);
+  const visibleOffers = filteredAndSortedOffers.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+
+  // Reset page when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(0);
+  };
+
+  const handleSortChange = (value: SortOption) => {
+    setSortBy(value);
+    setPage(0);
+  };
 
   const handleGenerateQuote = (offer: FPOOfferAPI, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -82,13 +134,46 @@ const AllFPOs = () => {
 
         {/* FPO Offers */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              All FPO Offers
-            </h2>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">
+                All FPO Offers
+              </h2>
               <span className="text-sm text-muted-foreground">
-                {fpoOffers.length} offers • Page {page + 1}/{totalPages || 1}
+                {filteredAndSortedOffers.length} offers
+              </span>
+            </div>
+
+            {/* Search and Sort Controls */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by FPO, commodity, variety, or location..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={(v) => handleSortChange(v as SortOption)}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  <SelectItem value="commodity">Commodity A-Z</SelectItem>
+                  <SelectItem value="location">Location A-Z</SelectItem>
+                  <SelectItem value="fpo-name">FPO Name A-Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-sm text-muted-foreground">
+                Page {page + 1}/{totalPages || 1}
               </span>
               <Button
                 variant="outline"
@@ -116,6 +201,10 @@ const AllFPOs = () => {
               Array.from({ length: 12 }).map((_, i) => (
                 <Skeleton key={i} className="h-64 rounded-lg" />
               ))
+            ) : visibleOffers.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                No offers found matching your search.
+              </div>
             ) : (
               visibleOffers.map((offer) => {
                 const addressParts = offer.address.split(", ");

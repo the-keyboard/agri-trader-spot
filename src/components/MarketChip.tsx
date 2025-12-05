@@ -11,9 +11,12 @@ export const MarketChip = ({ data }: MarketChipProps) => {
   const isPositive = data.change >= 0;
   const navigate = useNavigate();
 
+  // Create slug: "tomato-pusaruby" from "Tomato" and "Pusa Ruby"
+  const slug = `${data.commodity.toLowerCase().replace(/\s+/g, '')}-${data.variety.toLowerCase().replace(/\s+/g, '')}`;
+
   return (
     <div
-      onClick={() => navigate(`/commodity/${data.commodity}`)}
+      onClick={() => navigate(`/${slug}`)}
       className={cn(
         "flex items-center gap-3 px-6 py-4 rounded-lg border transition-all duration-300 cursor-pointer",
         isPositive 

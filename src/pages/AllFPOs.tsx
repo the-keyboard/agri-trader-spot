@@ -1,39 +1,30 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavigationMenu } from "@/components/NavigationMenu";
-import { MarketChip } from "@/components/MarketChip";
-import { PriceTicker } from "@/components/PriceTicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useTicker } from "@/hooks/useTicker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, MapPin, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, ArrowLeft, FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
 import { FPOOffer } from "@/lib/mockData";
 
-const Home = () => {
+const AllFPOs = () => {
   const navigate = useNavigate();
-  const { data: tickerData, isLoading, error } = useTicker(50);
   const [page, setPage] = useState(0);
-  const [fpoPage, setFpoPage] = useState(0);
-  const itemsPerPage = 6;
-  const fpoItemsPerPage = 6;
+  const itemsPerPage = 12;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<FPOOffer | null>(null);
   
-  const { data: fpoOffers = [], isLoading: fpoLoading } = useQuery({
+  const { data: fpoOffers = [], isLoading } = useQuery({
     queryKey: ['all-fpo-offers'],
     queryFn: fetchAllFPOOffers,
   });
 
-  const totalPages = tickerData ? Math.ceil(tickerData.length / itemsPerPage) : 0;
-  const visibleData = tickerData?.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
-
-  const fpoTotalPages = Math.ceil(fpoOffers.length / fpoItemsPerPage);
-  const visibleFPOs = fpoOffers.slice(fpoPage * fpoItemsPerPage, (fpoPage + 1) * fpoItemsPerPage);
+  const totalPages = Math.ceil(fpoOffers.length / itemsPerPage);
+  const visibleOffers = fpoOffers.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
   const handleGenerateQuote = (offer: FPOOfferAPI, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,22 +68,27 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Price Ticker */}
-      <PriceTicker />
+      <main className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/")}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Button>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Market Overview */}
+        {/* FPO Offers */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">
-              Market Overview
+              All FPO Offers
             </h2>
             <div className="flex items-center gap-2">
-              <Button variant="link" className="text-primary px-0" onClick={() => navigate("/all-crops")}>
-                View All
-              </Button>
               <span className="text-sm text-muted-foreground">
-                {tickerData ? `${page + 1}/${totalPages}` : ''}
+                {fpoOffers.length} offers • Page {page + 1}/{totalPages || 1}
               </span>
               <Button
                 variant="outline"
@@ -114,61 +110,14 @@ const Home = () => {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {isLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-20 rounded-lg" />
-              ))
-            ) : error ? (
-              <p className="text-destructive col-span-full">Failed to load market data</p>
-            ) : (
-              visibleData?.map((chip) => (
-                <MarketChip key={chip.id} data={chip} />
-              ))
-            )}
-          </div>
-        </section>
-
-        {/* FPO Offers */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              Latest FPO Offers
-            </h2>
-            <div className="flex items-center gap-2">
-              <Button variant="link" className="text-primary px-0" onClick={() => navigate("/all-fpos")}>
-                View All
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {fpoTotalPages > 0 ? `${fpoPage + 1}/${fpoTotalPages}` : ''}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setFpoPage(p => Math.max(0, p - 1))}
-                disabled={fpoPage === 0 || fpoLoading}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setFpoPage(p => Math.min(fpoTotalPages - 1, p + 1))}
-                disabled={fpoPage >= fpoTotalPages - 1 || fpoLoading}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {fpoLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
+            {isLoading ? (
+              Array.from({ length: 12 }).map((_, i) => (
                 <Skeleton key={i} className="h-64 rounded-lg" />
               ))
             ) : (
-              visibleFPOs.map((offer) => {
+              visibleOffers.map((offer) => {
                 const addressParts = offer.address.split(", ");
                 const state = addressParts[addressParts.length - 1] || "";
                 const district = addressParts[addressParts.length - 2] || "";
@@ -224,7 +173,7 @@ const Home = () => {
                           ₹{offer.price}/{offer.unit}
                         </span>
                         <Button 
-                          size="sm"
+                          size="sm" 
                           onClick={(e) => handleGenerateQuote(offer, e)}
                         >
                           <FileText className="w-3 h-3 mr-1" />
@@ -237,6 +186,31 @@ const Home = () => {
               })
             )}
           </div>
+
+          {/* Bottom Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground px-4">
+                Page {page + 1} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          )}
         </section>
       </main>
 
@@ -252,4 +226,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default AllFPOs;

@@ -29,7 +29,7 @@ const AllCrops = () => {
     // Filter by search query
     if (searchQuery) {
       result = result.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        item.commodity.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -43,7 +43,7 @@ const AllCrops = () => {
     // Sort
     switch (sortBy) {
       case "name":
-        result.sort((a, b) => a.name.localeCompare(b.name));
+        result.sort((a, b) => a.commodity.localeCompare(b.commodity));
         break;
       case "price-high":
         result.sort((a, b) => b.price - a.price);

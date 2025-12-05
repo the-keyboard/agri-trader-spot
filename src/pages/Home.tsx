@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { MarketChip } from "@/components/MarketChip";
@@ -8,11 +8,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTicker } from "@/hooks/useTicker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, MapPin, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronLeft, ChevronRight, MapPin, FileText, Search, ArrowUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
 import { FPOOffer } from "@/lib/mockData";
+
+type SortOption = "price-asc" | "price-desc" | "commodity" | "location";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -23,6 +27,8 @@ const Home = () => {
   const fpoItemsPerPage = 6;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<FPOOffer | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("price-asc");
   
   const { data: fpoOffers = [], isLoading: fpoLoading } = useQuery({
     queryKey: ['all-fpo-offers'],
@@ -32,8 +38,49 @@ const Home = () => {
   const totalPages = tickerData ? Math.ceil(tickerData.length / itemsPerPage) : 0;
   const visibleData = tickerData?.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
-  const fpoTotalPages = Math.ceil(fpoOffers.length / fpoItemsPerPage);
-  const visibleFPOs = fpoOffers.slice(fpoPage * fpoItemsPerPage, (fpoPage + 1) * fpoItemsPerPage);
+  const filteredAndSortedFPOs = useMemo(() => {
+    let filtered = fpoOffers;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(offer =>
+        offer.fpoName.toLowerCase().includes(query) ||
+        offer.commodity.toLowerCase().includes(query) ||
+        offer.variety.toLowerCase().includes(query) ||
+        offer.address.toLowerCase().includes(query)
+      );
+    }
+
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "price-asc":
+          return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
+        case "commodity":
+          return a.commodity.localeCompare(b.commodity);
+        case "location":
+          return a.address.localeCompare(b.address);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [fpoOffers, searchQuery, sortBy]);
+
+  const fpoTotalPages = Math.ceil(filteredAndSortedFPOs.length / fpoItemsPerPage);
+  const visibleFPOs = filteredAndSortedFPOs.slice(fpoPage * fpoItemsPerPage, (fpoPage + 1) * fpoItemsPerPage);
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setFpoPage(0);
+  };
+
+  const handleSortChange = (value: SortOption) => {
+    setSortBy(value);
+    setFpoPage(0);
+  };
 
   const handleGenerateQuote = (offer: FPOOfferAPI, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -131,16 +178,45 @@ const Home = () => {
 
         {/* FPO Offers */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              Latest FPO Offers
-            </h2>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">
+                Latest FPO Offers
+              </h2>
               <Button variant="link" className="text-primary px-0" onClick={() => navigate("/all-fpos")}>
                 View All
               </Button>
+            </div>
+
+            {/* Search and Sort Controls */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search FPO, commodity, location..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={sortBy} onValueChange={(v) => handleSortChange(v as SortOption)}>
+                <SelectTrigger className="w-full sm:w-44">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                  <SelectItem value="commodity">Commodity A-Z</SelectItem>
+                  <SelectItem value="location">Location A-Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-end gap-2">
               <span className="text-sm text-muted-foreground">
-                {fpoTotalPages > 0 ? `${fpoPage + 1}/${fpoTotalPages}` : ''}
+                {filteredAndSortedFPOs.length} offers • {fpoTotalPages > 0 ? `${fpoPage + 1}/${fpoTotalPages}` : '0/0'}
               </span>
               <Button
                 variant="outline"
@@ -167,6 +243,10 @@ const Home = () => {
               Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-64 rounded-lg" />
               ))
+            ) : visibleFPOs.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-muted-foreground">
+                No offers found matching your search.
+              </div>
             ) : (
               visibleFPOs.map((offer) => {
                 const addressParts = offer.address.split(", ");

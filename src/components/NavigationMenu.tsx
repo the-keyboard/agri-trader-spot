@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -25,46 +26,49 @@ export const NavigationMenu = () => {
   const location = useLocation();
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="rounded-xl hover:bg-secondary/80 press-effect"
-        >
-          <Menu className="w-5 h-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] p-0 border-r border-border/50">
-        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/50">
-          <SheetTitle className="text-xl font-semibold">Menu</SheetTitle>
-        </SheetHeader>
-        <nav className="p-3 space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Button
-                key={item.path}
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start rounded-xl h-12 px-4 press-effect",
-                  isActive 
-                    ? "bg-primary/10 text-primary font-medium" 
-                    : "hover:bg-secondary/80"
-                )}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon className={cn(
-                  "w-5 h-5 mr-3",
-                  isActive && "text-primary"
-                )} />
-                {item.label}
-              </Button>
-            );
-          })}
-        </nav>
-      </SheetContent>
-    </Sheet>
+    <div className="flex items-center gap-2">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-xl hover:bg-secondary/80 press-effect"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[300px] p-0 border-r border-border/50">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/50">
+            <SheetTitle className="text-xl font-semibold">Menu</SheetTitle>
+          </SheetHeader>
+          <nav className="p-3 space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start rounded-xl h-12 px-4 press-effect",
+                    isActive 
+                      ? "bg-primary/10 text-primary font-medium" 
+                      : "hover:bg-secondary/80"
+                  )}
+                  onClick={() => navigate(item.path)}
+                >
+                  <Icon className={cn(
+                    "w-5 h-5 mr-3",
+                    isActive && "text-primary"
+                  )} />
+                  {item.label}
+                </Button>
+              );
+            })}
+          </nav>
+        </SheetContent>
+      </Sheet>
+      <ThemeToggle />
+    </div>
   );
 };

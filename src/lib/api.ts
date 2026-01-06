@@ -112,9 +112,11 @@ export async function fetchAllFPOOffers(): Promise<FPOOfferAPI[]> {
   return response.json();
 }
 
-// Auth endpoints
+// Auth endpoints - use Vercel API directly
+const AUTH_API = "https://v-box-backend.vercel.app";
+
 export async function register(name: string, email: string, phone?: string): Promise<RegisterResponse> {
-  const res = await fetchWithFallback(`/vboxtrade/auth/register`, {
+  const res = await fetch(`${AUTH_API}/vboxtrade/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, phone }),
@@ -124,7 +126,7 @@ export async function register(name: string, email: string, phone?: string): Pro
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<VerifyOtpResponse> {
-  const res = await fetchWithFallback(`/vboxtrade/auth/verify-otp`, {
+  const res = await fetch(`${AUTH_API}/vboxtrade/auth/verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, otp }),
@@ -136,7 +138,7 @@ export async function verifyOtp(email: string, otp: string): Promise<VerifyOtpRe
 }
 
 export async function resendOtp(email: string): Promise<RegisterResponse> {
-  const res = await fetchWithFallback(`/vboxtrade/auth/resend-otp`, {
+  const res = await fetch(`${AUTH_API}/vboxtrade/auth/resend-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),

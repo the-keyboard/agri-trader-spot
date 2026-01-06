@@ -78,7 +78,24 @@ export const QuoteFormDialog = ({
       setDeliveryDate("");
       setNotes("");
     } catch (err: any) {
-      toast.error(err?.message || "Failed to create quotation");
+      const errorMessage = err?.message || "";
+      
+      // Map technical errors to user-friendly messages
+      let userMessage = "Something went wrong. Please try again later.";
+      
+      if (errorMessage.includes("Invalid or expired token") || errorMessage.includes("401")) {
+        userMessage = "Your session has expired. Please log in again.";
+      } else if (errorMessage.includes("not found") || errorMessage.includes("404")) {
+        userMessage = "This offer is no longer available. Please refresh and try a different one.";
+      } else if (errorMessage.includes("Quantity")) {
+        userMessage = errorMessage; // Keep quantity validation messages as-is
+      } else if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+        userMessage = "Unable to connect to the server. Please check your internet connection.";
+      } else if (errorMessage.includes("500") || errorMessage.includes("server")) {
+        userMessage = "Our servers are experiencing issues. Please try again in a few minutes.";
+      }
+      
+      toast.error(userMessage);
     } finally {
       setLoading(false);
     }

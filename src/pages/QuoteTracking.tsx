@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MobileDock } from "@/components/MobileDock";
 import { NavigationMenu } from "@/components/NavigationMenu";
+import { QuotationListSkeleton } from "@/components/QuotationCardSkeleton";
 import { AuthWidget } from "@/components/AuthWidget";
 import { fetchQuotations, QuotationResponse, getAuthToken } from "@/lib/api";
 import { toast } from "sonner";
@@ -111,17 +112,7 @@ const QuoteTracking = () => {
             </CardContent>
           </Card>
         ) : loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="rounded-2xl animate-pulse">
-                <CardContent className="p-6">
-                  <div className="h-6 bg-muted rounded w-1/3 mb-4"></div>
-                  <div className="h-4 bg-muted rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-2/3"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <QuotationListSkeleton count={4} variant="tracking" />
         ) : quotations.length === 0 ? (
           <Card className="rounded-2xl">
             <CardContent className="py-12 text-center">

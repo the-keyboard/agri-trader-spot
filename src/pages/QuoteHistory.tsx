@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { NavigationMenu } from "@/components/NavigationMenu";
+import { QuotationListSkeleton } from "@/components/QuotationCardSkeleton";
 import { AuthWidget } from "@/components/AuthWidget";
 import { fetchQuotations, QuotationResponse, getAuthToken } from "@/lib/api";
 import { toast } from "sonner";
@@ -118,15 +119,7 @@ const QuoteHistory = () => {
             </CardContent>
           </Card>
         ) : loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-card border border-border rounded-2xl p-6 animate-pulse">
-                <div className="h-6 bg-muted rounded w-1/3 mb-4"></div>
-                <div className="h-4 bg-muted rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-muted rounded w-2/3"></div>
-              </div>
-            ))}
-          </div>
+          <QuotationListSkeleton count={4} variant="history" />
         ) : quotations.length === 0 ? (
           <Card className="rounded-2xl">
             <CardContent className="py-12 text-center">

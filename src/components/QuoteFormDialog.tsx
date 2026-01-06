@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { RefreshCw, AlertCircle } from "lucide-react";
 
 interface QuoteFormDialogProps {
   open: boolean;
@@ -34,9 +35,11 @@ export const QuoteFormDialog = ({
   const [deliveryDate, setDeliveryDate] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setError(null);
     
     // Check if user is logged in
     const token = getAuthToken();
@@ -77,6 +80,7 @@ export const QuoteFormDialog = ({
       setOfferPrice(offer.price.toString());
       setDeliveryDate("");
       setNotes("");
+      setError(null);
     } catch (err: any) {
       const errorMessage = err?.message || "";
       
@@ -88,17 +92,21 @@ export const QuoteFormDialog = ({
       } else if (errorMessage.includes("not found") || errorMessage.includes("404")) {
         userMessage = "This offer is no longer available. Please refresh and try a different one.";
       } else if (errorMessage.includes("Quantity")) {
-        userMessage = errorMessage; // Keep quantity validation messages as-is
+        userMessage = errorMessage;
       } else if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
         userMessage = "Unable to connect to the server. Please check your internet connection.";
       } else if (errorMessage.includes("500") || errorMessage.includes("server")) {
         userMessage = "Our servers are experiencing issues. Please try again in a few minutes.";
       }
       
-      toast.error(userMessage);
+      setError(userMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    handleSubmit();
   };
 
   return (
@@ -186,6 +194,27 @@ export const QuoteFormDialog = ({
               disabled={loading}
             />
           </div>
+
+          {/* Error state with retry */}
+          {error && (
+            <div className="flex items-start gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+              <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <p className="text-sm text-destructive">{error}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  disabled={loading}
+                  className="rounded-lg"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button

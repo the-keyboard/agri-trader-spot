@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, MapPin, FileText, Search, ArrowUpDown } from "lucide-react";
+import { PriceAlertManager } from "@/components/PriceAlertManager";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
@@ -108,7 +109,10 @@ const Home = () => {
             <h1 className="text-xl font-semibold text-foreground tracking-tight">
               VBOX Trading
             </h1>
-            <AuthWidget />
+            <div className="flex items-center gap-2">
+              <PriceAlertManager />
+              <AuthWidget />
+            </div>
           </div>
         </div>
       </header>

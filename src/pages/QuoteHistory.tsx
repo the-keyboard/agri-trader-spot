@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Calendar, Clock, MessageSquare, RefreshCw, Package } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MessageSquare, RefreshCw, Package, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { QuotationListSkeleton } from "@/components/QuotationCardSkeleton";
+import { QuoteStats } from "@/components/QuoteStats";
 import { AuthWidget } from "@/components/AuthWidget";
 import { fetchQuotations, QuotationResponse, getAuthToken } from "@/lib/api";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ const QuoteHistory = () => {
   const [quotations, setQuotations] = useState<QuotationResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [showStats, setShowStats] = useState(true);
 
   const loadQuotations = async () => {
     const token = getAuthToken();
@@ -94,6 +96,17 @@ const QuoteHistory = () => {
                 </p>
               </div>
             )}
+            {isLoggedIn && quotations.length > 0 && (
+              <Button
+                variant={showStats ? "default" : "ghost"}
+                size="icon"
+                onClick={() => setShowStats(!showStats)}
+                className="rounded-xl"
+                title={showStats ? "Hide statistics" : "Show statistics"}
+              >
+                <BarChart3 className="w-4 h-4" />
+              </Button>
+            )}
             {isLoggedIn && (
               <Button
                 variant="ghost"
@@ -132,6 +145,9 @@ const QuoteHistory = () => {
           </Card>
         ) : (
           <div className="space-y-4">
+            {/* Stats Section */}
+            {showStats && <QuoteStats quotations={quotations} />}
+
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
                 {total} quote{total !== 1 ? "s" : ""} in history

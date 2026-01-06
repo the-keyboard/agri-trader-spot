@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { MapPin, Package, Calendar, BadgeCheck, Navigation } from "lucide-react";
+import { MapPin, Package, Calendar, BadgeCheck, Heart } from "lucide-react";
 import { FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QuoteFormDialog } from "./QuoteFormDialog";
 import { toast } from "sonner";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface FPOCardProps {
   offer: FPOOfferAPI;
@@ -13,9 +14,17 @@ interface FPOCardProps {
 export const FPOCard = ({ offer }: FPOCardProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quoteNo, setQuoteNo] = useState<string | null>(null);
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const isFav = isFavorite(offer.id);
 
   const handleQuoteGenerated = (newQuoteNo: string) => {
     setQuoteNo(newQuoteNo);
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(offer);
+    toast.success(isFav ? "Removed from watchlist" : "Added to watchlist");
   };
 
   const handleRequestQuote = () => {
@@ -46,9 +55,22 @@ export const FPOCard = ({ offer }: FPOCardProps) => {
               📍 {offer.pincode}
             </span>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            {offer.grade}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleFavorite}
+              className={`p-1.5 rounded-lg transition-colors ${
+                isFav 
+                  ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" 
+                  : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+              }`}
+              aria-label={isFav ? "Remove from watchlist" : "Add to watchlist"}
+            >
+              <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
+            </button>
+            <Badge variant="secondary" className="text-xs">
+              {offer.grade}
+            </Badge>
+          </div>
         </div>
 
         <div className="space-y-2 mb-4">

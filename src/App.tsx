@@ -13,6 +13,7 @@ import QuoteTracking from "./pages/QuoteTracking";
 import QuoteHistory from "./pages/QuoteHistory";
 import QuoteDetail from "./pages/QuoteDetail";
 import OrderTracking from "./pages/OrderTracking";
+import Watchlist from "./pages/Watchlist";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/quote-tracking" element={<QuoteTracking />} />
             <Route path="/quote-history" element={<QuoteHistory />} />
             <Route path="/order-tracking" element={<OrderTracking />} />
+            <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/quote/:quoteNo" element={<QuoteDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -161,14 +161,46 @@ async function fetchWithFallback(path: string, options?: RequestInit): Promise<R
   const urlPrimary = `${API_PRIMARY}${path.startsWith("/") ? path : `/${path}`}`;
   const urlFallback = `${API_FALLBACK}${path.startsWith("/") ? path : `/${path}`}`;
 
+  let primaryDiag = "(not attempted)";
+
+  // Try primary
   try {
     const res = await fetch(urlPrimary, options);
     if (res.ok) return res;
-  } catch (e) {}
 
-  const res2 = await fetch(urlFallback, options);
-  if (!res2.ok) throw new Error(`Failed to fetch ${path}`);
-  return res2;
+    const body = await res
+      .clone()
+      .text()
+      .catch(() => "");
+    primaryDiag = `${res.status} ${res.statusText}${body ? ` | ${body.slice(0, 400)}` : ""}`;
+  } catch (e) {
+    primaryDiag = `network error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+
+  // Fallback
+  let res2: Response;
+  try {
+    res2 = await fetch(urlFallback, options);
+  } catch (e) {
+    throw new Error(
+      `Request failed for ${path}\n` +
+        `Primary: ${urlPrimary} -> ${primaryDiag}\n` +
+        `Fallback: ${urlFallback} -> network error: ${e instanceof Error ? e.message : String(e)}`
+    );
+  }
+
+  if (res2.ok) return res2;
+
+  const body2 = await res2
+    .clone()
+    .text()
+    .catch(() => "");
+
+  throw new Error(
+    `Request failed for ${path}\n` +
+      `Primary: ${urlPrimary} -> ${primaryDiag}\n` +
+      `Fallback: ${urlFallback} -> ${res2.status} ${res2.statusText}${body2 ? ` | ${body2.slice(0, 400)}` : ""}`
+  );
 }
 
 export async function fetchTicker(limit: number = 50): Promise<MarketChipAPI[]> {
@@ -372,7 +404,7 @@ export async function createOrder(data: OrderCreateRequest): Promise<OrderRespon
   const token = getAuthToken();
   if (!token) throw new Error("Please login to create an order");
 
-  const res = await fetchWithFallback(`/vboxtrade/orders/`, {
+  const res = await fetchWithFallback(`/vboxtrade/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -399,7 +431,7 @@ export async function fetchOrders(
   if (!token) throw new Error("Please login to view orders");
 
   const res = await fetchWithFallback(
-    `/vboxtrade/orders/?role=${role}&limit=${limit}&offset=${offset}`,
+    `/vboxtrade/orders?role=${role}&limit=${limit}&offset=${offset}`,
     {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },

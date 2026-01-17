@@ -92,7 +92,7 @@ const Home = () => {
     e.stopPropagation();
     const token = getAuthToken();
     if (!token) {
-      toast.error("Please login to request a quotation");
+      navigate("/login");
       return;
     }
     setSelectedOffer(offer);

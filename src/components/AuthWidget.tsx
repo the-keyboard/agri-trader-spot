@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { register, verifyOtp, resendOtp, getProfile, getAuthToken, clearAuthToken, AuthUser } from "@/lib/api";
 import { User, LogOut, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { getAuthDialogState, subscribeAuthDialog, closeAuthDialog } from "@/hooks/useAuthDialog";
 
 type AuthMode = "login" | "register";
 type AuthStep = "idle" | "form" | "otp";
@@ -20,6 +21,17 @@ export function AuthWidget() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+
+  // Subscribe to global auth dialog state
+  const externalState = useSyncExternalStore(subscribeAuthDialog, getAuthDialogState);
+  
+  // Sync external open requests to local state
+  useEffect(() => {
+    if (externalState.isOpen && step === "idle") {
+      setMode(externalState.mode);
+      setStep("form");
+    }
+  }, [externalState.isOpen, externalState.mode, step]);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -102,6 +114,7 @@ export function AuthWidget() {
     setName("");
     setPhone("");
     setOtp("");
+    closeAuthDialog(); // Close global state too
   };
 
   const openDialog = (authMode: AuthMode) => {

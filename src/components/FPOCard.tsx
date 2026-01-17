@@ -1,17 +1,19 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MapPin, Package, Calendar, BadgeCheck, Heart } from "lucide-react";
 import { FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QuoteFormDialog } from "./QuoteFormDialog";
-import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
+import { toast } from "sonner";
 
 interface FPOCardProps {
   offer: FPOOfferAPI;
 }
 
 export const FPOCard = ({ offer }: FPOCardProps) => {
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quoteNo, setQuoteNo] = useState<string | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -30,7 +32,7 @@ export const FPOCard = ({ offer }: FPOCardProps) => {
   const handleRequestQuote = () => {
     const token = getAuthToken();
     if (!token) {
-      toast.error("Please login to request a quotation");
+      navigate("/login");
       return;
     }
     setDialogOpen(true);

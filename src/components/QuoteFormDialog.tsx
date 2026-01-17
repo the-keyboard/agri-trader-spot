@@ -67,8 +67,8 @@ export const QuoteFormDialog = ({
     // Check if user is logged in
     const token = getAuthToken();
     if (!token) {
-      toast.error("Please login to request a quotation");
       onOpenChange(false);
+      navigate("/login");
       return;
     }
     

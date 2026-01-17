@@ -16,8 +16,8 @@ import { PriceAlertManager } from "@/components/PriceAlertManager";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
-import { toast } from "sonner";
 import { useQuoteNotifications } from "@/hooks/useQuoteNotifications";
+import { openLoginDialog } from "@/hooks/useAuthDialog";
 
 type SortOption = "price-asc" | "price-desc" | "commodity" | "location";
 
@@ -92,7 +92,7 @@ const Home = () => {
     e.stopPropagation();
     const token = getAuthToken();
     if (!token) {
-      navigate("/login");
+      openLoginDialog();
       return;
     }
     setSelectedOffer(offer);

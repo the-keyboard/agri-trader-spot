@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { FPOOfferAPI, createQuotation, getAuthToken, fetchPaymentTerms, PaymentTerm } from "@/lib/api";
+import { openLoginDialog } from "@/hooks/useAuthDialog";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,6 @@ export const QuoteFormDialog = ({
   offer,
   onQuoteGenerated,
 }: QuoteFormDialogProps) => {
-  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(offer.minOrderQty.toString());
   const [location, setLocation] = useState("");
   const [offerPrice, setOfferPrice] = useState(offer.price.toString());
@@ -68,7 +67,7 @@ export const QuoteFormDialog = ({
     const token = getAuthToken();
     if (!token) {
       onOpenChange(false);
-      navigate("/login");
+      openLoginDialog();
       return;
     }
     

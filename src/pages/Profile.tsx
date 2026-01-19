@@ -1,19 +1,39 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuthToken, getProfile, clearAuthToken, AuthUser } from "@/lib/api";
+import { getAuthToken, clearAuthToken } from "@/lib/api";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { AuthWidget } from "@/components/AuthWidget";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, User, Mail, Phone, LogOut } from "lucide-react";
+import { ArrowLeft, User, Building2, MapPin, FileCheck2, LogOut, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { useProfileData } from "@/hooks/useProfileData";
+import { PersonalProfileSection } from "@/components/profile/PersonalProfileSection";
+import { BusinessProfileSection } from "@/components/profile/BusinessProfileSection";
+import { AddressManagementSection } from "@/components/profile/AddressManagementSection";
+import { KYCDetailsSection } from "@/components/profile/KYCDetailsSection";
+
+type ProfileTab = "personal" | "business" | "addresses" | "kyc";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [activeTab, setActiveTab] = useState<ProfileTab>("personal");
   const [loading, setLoading] = useState(true);
+
+  const {
+    personalProfile,
+    businessProfile,
+    addresses,
+    kycDetails,
+    loading: dataLoading,
+    savePersonalProfile,
+    saveBusinessProfile,
+    addAddress,
+    updateAddress,
+    deleteAddress,
+    saveKycDetails,
+  } = useProfileData();
 
   useEffect(() => {
     const token = getAuthToken();
@@ -21,16 +41,7 @@ export default function Profile() {
       navigate("/");
       return;
     }
-
-    getProfile()
-      .then((profile) => {
-        setUser(profile);
-        setLoading(false);
-      })
-      .catch(() => {
-        clearAuthToken();
-        navigate("/");
-      });
+    setLoading(false);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -39,7 +50,22 @@ export default function Profile() {
     navigate("/");
   };
 
-  if (loading) {
+  // Calculate completion status
+  const isPersonalComplete = Boolean(personalProfile.firstName && personalProfile.lastName);
+  const isBusinessComplete = Boolean(businessProfile);
+  const hasAddresses = addresses.length > 0;
+  const isKycComplete = Boolean(kycDetails.panNumber);
+
+  const completionSteps = [
+    { id: "personal", label: "Personal", complete: isPersonalComplete },
+    { id: "business", label: "Business", complete: isBusinessComplete },
+    { id: "addresses", label: "Addresses", complete: hasAddresses },
+    { id: "kyc", label: "KYC", complete: isKycComplete },
+  ];
+
+  const completedCount = completionSteps.filter(s => s.complete).length;
+
+  if (loading || dataLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
@@ -70,45 +96,113 @@ export default function Profile() {
 
       {/* Content */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24">
-        <Card className="rounded-2xl border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-primary" />
-              Account Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="flex items-center gap-2">
-                <User className="w-4 h-4 text-muted-foreground" />
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={user?.name || ""}
-                readOnly
-                className="h-11 rounded-xl bg-muted/50"
-              />
+        {/* Progress Indicator */}
+        <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium">Profile Completion</p>
+              <span className="text-xs text-muted-foreground">
+                {completedCount} of {completionSteps.length} sections
+              </span>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                Email
-              </Label>
-              <Input
-                id="email"
-                value={user?.email || "Not provided"}
-                readOnly
-                className="h-11 rounded-xl bg-muted/50"
-              />
+            <div className="flex gap-2">
+              {completionSteps.map((step) => (
+                <button
+                  key={step.id}
+                  onClick={() => setActiveTab(step.id as ProfileTab)}
+                  className="flex-1 relative"
+                >
+                  <div
+                    className={`h-1.5 rounded-full transition-colors ${
+                      step.complete
+                        ? "bg-primary"
+                        : "bg-muted"
+                    }`}
+                  />
+                  <div className="flex items-center justify-center mt-2">
+                    {step.complete ? (
+                      <CheckCircle2 className="w-4 h-4 text-primary" />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full border-2 border-muted" />
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {step.label}
+                  </p>
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
 
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProfileTab)}>
+          <TabsList className="w-full h-auto p-1 grid grid-cols-4 gap-1 bg-secondary rounded-xl">
+            <TabsTrigger
+              value="personal"
+              className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5"
+            >
+              <User className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Personal</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="business"
+              className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5"
+            >
+              <Building2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Business</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="addresses"
+              className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5"
+            >
+              <MapPin className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Addresses</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="kyc"
+              className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5"
+            >
+              <FileCheck2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">KYC</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="personal" className="mt-4">
+            <PersonalProfileSection
+              profile={personalProfile}
+              onSave={savePersonalProfile}
+            />
+          </TabsContent>
+
+          <TabsContent value="business" className="mt-4">
+            <BusinessProfileSection
+              profile={businessProfile}
+              onSave={saveBusinessProfile}
+            />
+          </TabsContent>
+
+          <TabsContent value="addresses" className="mt-4">
+            <AddressManagementSection
+              addresses={addresses}
+              onAdd={addAddress}
+              onUpdate={updateAddress}
+              onDelete={deleteAddress}
+            />
+          </TabsContent>
+
+          <TabsContent value="kyc" className="mt-4">
+            <KYCDetailsSection
+              kycDetails={kycDetails}
+              onSave={saveKycDetails}
+            />
+          </TabsContent>
+        </Tabs>
+
+        {/* Logout Section */}
         <Card className="rounded-2xl border-border/50">
           <CardHeader>
-            <CardTitle className="text-destructive">Danger Zone</CardTitle>
+            <CardTitle className="text-destructive text-base">Account Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <Button

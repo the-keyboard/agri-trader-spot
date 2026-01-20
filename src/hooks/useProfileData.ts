@@ -184,6 +184,7 @@ export function useProfileData() {
   // Load data from API on mount
   const loadProfileData = useCallback(async () => {
     const token = getAuthToken();
+    console.log("AUTH TOKEN:", getAuthToken());
     if (!token) {
       setLoading(false);
       return;

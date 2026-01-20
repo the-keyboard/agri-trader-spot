@@ -88,10 +88,21 @@ function personalToApi(data: PersonalProfile): PersonalProfileAPI {
   if (data.gender === "male") genderNum = 0;
   else if (data.gender === "female") genderNum = 1;
   
+  // Format date_of_birth - send null if empty, otherwise ensure YYYY-MM-DD format
+  let dateOfBirth: string | null = null;
+  if (data.dateOfBirth && data.dateOfBirth.trim() !== "") {
+    // Parse and reformat to ensure correct ISO date format
+    const dateObj = new Date(data.dateOfBirth);
+    if (!isNaN(dateObj.getTime())) {
+      // Format as YYYY-MM-DD
+      dateOfBirth = dateObj.toISOString().split('T')[0];
+    }
+  }
+  
   return {
     first_name: data.firstName,
     last_name: data.lastName,
-    date_of_birth: data.dateOfBirth || null,
+    date_of_birth: dateOfBirth,
     gender: genderNum,
   };
 }

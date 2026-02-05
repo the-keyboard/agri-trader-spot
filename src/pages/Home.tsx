@@ -18,6 +18,7 @@ import { fetchAllFPOOffers, FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
 import { useQuoteNotifications } from "@/hooks/useQuoteNotifications";
 import { openLoginDialog } from "@/hooks/useAuthDialog";
+ import { Footer } from "@/components/Footer";
 
 type SortOption = "price-asc" | "price-desc" | "commodity" | "location";
 
@@ -347,6 +348,8 @@ const Home = () => {
 
       {/* Mobile Dock */}
       <MobileDock />
+       
+       <Footer />
 
       {selectedOffer && (
         <QuoteFormDialog

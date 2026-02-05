@@ -14,6 +14,9 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+ import { LoginPrompt } from "@/components/LoginPrompt";
+ import { Footer } from "@/components/Footer";
+ import { NavigationMenu } from "@/components/NavigationMenu";
 
 const getStatusColor = (status: string) => {
   const statusLower = status.toLowerCase();
@@ -171,28 +174,34 @@ const OrderTracking = () => {
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+         <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border/50">
+           <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+             <div className="flex items-center gap-3">
+               <NavigationMenu />
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={() => navigate("/")}
+                 className="rounded-xl"
+               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <h1 className="text-xl font-bold text-primary">Order Tracking</h1>
+               <h1 className="text-lg font-semibold">Order Tracking</h1>
             </div>
+             <AuthWidget />
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-6 pb-dock">
-          <Card>
-            <CardContent className="py-12 text-center">
-              <LogIn className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-4">Please login to view your orders</p>
-              <Button onClick={() => navigate("/login")}>Login</Button>
-            </CardContent>
-          </Card>
+         <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
+           <LoginPrompt 
+             icon={<Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />}
+             message="Please login to view your orders"
+           />
         </main>
 
         <MobileDock />
+         
+         <Footer />
       </div>
     );
   }
@@ -615,6 +624,7 @@ const OrderTracking = () => {
       </Dialog>
 
       <ApiDebugDrawer />
+       <Footer />
       <MobileDock />
     </div>
   );

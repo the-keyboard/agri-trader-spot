@@ -10,6 +10,9 @@ import { QuoteStats } from "@/components/QuoteStats";
 import { AuthWidget } from "@/components/AuthWidget";
 import { fetchQuotations, QuotationResponse, getAuthToken } from "@/lib/api";
 import { toast } from "sonner";
+ import { LoginPrompt } from "@/components/LoginPrompt";
+ import { Footer } from "@/components/Footer";
+ import { MobileDock } from "@/components/MobileDock";
 
 const getStatusColor = (status: QuotationResponse["status"]) => {
   switch (status) {
@@ -125,12 +128,10 @@ const QuoteHistory = () => {
 
       <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
         {!isLoggedIn ? (
-          <Card className="rounded-2xl">
-            <CardContent className="py-12 text-center">
-              <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-4">Please login to view your quote history</p>
-            </CardContent>
-          </Card>
+           <LoginPrompt 
+             icon={<Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />}
+             message="Please login to view your quote history"
+           />
         ) : loading ? (
           <QuotationListSkeleton count={4} variant="history" />
         ) : quotations.length === 0 ? (
@@ -228,6 +229,10 @@ const QuoteHistory = () => {
           </div>
         )}
       </main>
+       
+       <MobileDock />
+       
+       <Footer />
     </div>
   );
 };

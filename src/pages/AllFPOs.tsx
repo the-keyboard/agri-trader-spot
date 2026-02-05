@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
 import { toast } from "sonner";
+ import { Footer } from "@/components/Footer";
 
 type SortOption = "price-asc" | "price-desc" | "commodity" | "location" | "fpo-name";
 
@@ -295,6 +296,8 @@ const AllFPOs = () => {
       </main>
 
       <MobileDock />
+       
+       <Footer />
 
       {selectedOffer && (
         <QuoteFormDialog

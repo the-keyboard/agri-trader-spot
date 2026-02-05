@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllFPOOffers, FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { FPOCard } from "@/components/FPOCard";
 import { toast } from "sonner";
+ import { Footer } from "@/components/Footer";
 
 const Watchlist = () => {
   const navigate = useNavigate();
@@ -300,6 +301,8 @@ const Watchlist = () => {
       </main>
 
       <MobileDock />
+       
+       <Footer />
     </div>
   );
 };

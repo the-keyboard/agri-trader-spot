@@ -7,7 +7,6 @@ import { MarketChip } from "@/components/MarketChip";
 import { MobileDock } from "@/components/MobileDock";
 import { useTicker } from "@/hooks/useTicker";
 import { Skeleton } from "@/components/ui/skeleton";
- import { Footer } from "@/components/Footer";
 import {
   Select,
   SelectContent,
@@ -156,8 +155,6 @@ const AllCrops = () => {
       </main>
 
       <MobileDock />
-       
-       <Footer />
     </div>
   );
 };

@@ -110,8 +110,8 @@ const Home = () => {
             <NavigationMenu />
             <div className="flex items-center gap-2">
               <img src={logoImg} alt="BoxFarming" className="w-8 h-8 rounded-lg" />
-              <h1 className="text-lg font-bold text-foreground tracking-tight">
-                <span className="text-primary">box</span>farming
+              <h1 className="text-lg font-bold tracking-tight">
+                <span className="text-primary">vbox</span><span className="text-foreground">trade</span>
               </h1>
             </div>
             <div className="flex items-center gap-2">

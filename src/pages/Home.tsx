@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronLeft, ChevronRight, MapPin, FileText, Search, ArrowUpDown } from "lucide-react";
 import { PriceAlertManager } from "@/components/PriceAlertManager";
 import { useQuery } from "@tanstack/react-query";
+import logoImg from "@/assets/logo.png";
 import { fetchAllFPOOffers, FPOOfferAPI, getAuthToken } from "@/lib/api";
 import { QuoteFormDialog } from "@/components/QuoteFormDialog";
 import { useQuoteNotifications } from "@/hooks/useQuoteNotifications";
@@ -106,9 +107,12 @@ const Home = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <NavigationMenu />
-            <h1 className="text-xl font-semibold text-foreground tracking-tight">
-              VBOX Trading
-            </h1>
+            <div className="flex items-center gap-2">
+              <img src={logoImg} alt="BoxFarming" className="w-8 h-8 rounded-lg" />
+              <h1 className="text-lg font-bold text-foreground tracking-tight">
+                <span className="text-primary">box</span>farming
+              </h1>
+            </div>
             <div className="flex items-center gap-2">
               <PriceAlertManager />
               <AuthWidget />
@@ -297,7 +301,7 @@ const Home = () => {
                           </div>
                         </div>
                       </div>
-                      <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-[10px] font-medium rounded-md">
+                      <Badge className="bg-primary/10 text-primary hover:bg-primary/10 text-[10px] font-medium rounded-md">
                         {offer.fpoType}
                       </Badge>
                     </div>
@@ -314,7 +318,7 @@ const Home = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Grade</span>
-                        <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 text-[10px] font-medium rounded-md">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/10 text-[10px] font-medium rounded-md">
                           {offer.grade}
                         </Badge>
                       </div>
